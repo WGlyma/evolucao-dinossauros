@@ -24,6 +24,7 @@
         <div class="dino-container" id="dinossauros"></div>
         
         <div class="controls">
+            <button onclick="gerarPopulacao(10)">🦖 Gerar População</button>
             <button onclick="selecionarDinos()">🦖 Seleção Natural</button>
             <button onclick="executarCrossover()">🦖 Cross-over</button>
             <button onclick="mutacao('aleatoria')">🦖 Mutação Aleatória</button>
@@ -38,16 +39,27 @@
     
     <script>
         class Dinossauro {
-            constructor(velocidade) {
+            constructor(velocidade, forca, inteligencia) {
                 this.velocidade = velocidade;
+                this.forca = forca;
+                this.inteligencia = inteligencia;
                 this.imagem = "https://upload.wikimedia.org/wikipedia/commons/6/6e/Tyrannosaurus_Rex_Holotype.png";
+                this.fitness = this.calcularFitness();
+            }
+            
+            calcularFitness() {
+                return this.velocidade * 0.5 + this.forca * 0.3 + this.inteligencia * 0.2; // Ajuste os pesos conforme necessário
             }
         }
         
         let populacao = [];
         
         function gerarPopulacao(size) {
-            populacao = Array.from({ length: size }, () => new Dinossauro(Math.floor(Math.random() * 100)));
+            populacao = Array.from({ length: size }, () => new Dinossauro(
+                Math.floor(Math.random() * 100),
+                Math.floor(Math.random() * 100),
+                Math.floor(Math.random() * 100)
+            ));
             atualizarExibicao();
             logAcao("🦖 Nova população gerada.");
         }
@@ -58,9 +70,10 @@
             populacao.forEach((dino, index) => {
                 container.innerHTML += `
                     <div class='dino'>
-                        
                         <p><strong>Dino ${index + 1}</strong></p>
                         <p>Velocidade: <strong>${dino.velocidade} km/h</strong></p>
+                        <p>Força: <strong>${dino.forca}</strong></p>
+                        <p>Inteligência: <strong>${dino.inteligencia}</strong></p>
                     </div>`;
             });
         }
@@ -72,17 +85,35 @@
         }
         
         function selecionarDinos() {
-            populacao.sort((a, b) => b.velocidade - a.velocidade);
-            populacao = populacao.slice(0, Math.ceil(populacao.length / 2));
+            const totalFitness = populacao.reduce((sum, dino) => sum + dino.fitness, 0);
+            const novaPopulacao = [];
+            for (let i = 0; i < populacao.length / 2; i++) {
+                const dinoSelecionado = selecionarPorRoleta(totalFitness);
+                novaPopulacao.push(dinoSelecionado);
+            }
+            populacao = novaPopulacao;
             atualizarExibicao();
-            logAcao("🦖 Seleção realizada. Apenas os mais rápidos continuam.");
+            logAcao("🦖 Seleção realizada. Apenas os dinossauros mais aptos continuam.");
+        }
+        
+        function selecionarPorRoleta(totalFitness) {
+            let random = Math.random() * totalFitness;
+            for (const dino of populacao) {
+                if (random < dino.fitness) {
+                    return dino;
+                }
+                random -= dino.fitness;
+            }
+            return populacao[0]; // Caso não encontre (nunca deve acontecer)
         }
         
         function executarCrossover() {
             let novaPopulacao = [];
             for (let i = 0; i < populacao.length - 1; i += 2) {
                 let novaVelocidade = Math.round((populacao[i].velocidade + populacao[i + 1].velocidade) / 2);
-                novaPopulacao.push(new Dinossauro(novaVelocidade));
+                let novaForca = Math.round((populacao[i].forca + populacao[i + 1].forca) / 2);
+                let novaInteligencia = Math.round((populacao[i].inteligencia + populacao[i + 1].inteligencia) / 2);
+                novaPopulacao.push(new Dinossauro(novaVelocidade, novaForca, novaInteligencia));
             }
             populacao = [...populacao, ...novaPopulacao];
             atualizarExibicao();
@@ -94,23 +125,27 @@
                 let antes = dino.velocidade;
                 if (tipo === 'aleatoria') {
                     dino.velocidade = Math.floor(Math.random() * 100);
+                    dino.forca = Math.floor(Math.random() * 100);
+                    dino.inteligencia = Math.floor(Math.random() * 100);
                 } else if (tipo === 'pequena') {
                     dino.velocidade += Math.floor(Math.random() * 10) - 5;
+                    dino.forca += Math.floor(Math.random() * 10) - 5;
+                    dino.inteligencia += Math.floor(Math.random() * 10) - 5;
                 } else if (tipo === 'dirigida') {
                     dino.velocidade += 10;
                 }
                 dino.velocidade = Math.max(0, Math.min(100, dino.velocidade));
+                dino.forca = Math.max(0, Math.min(100, dino.forca));
+                dino.inteligencia = Math.max(0, Math.min(100, dino.inteligencia));
+                dino.fitness = dino.calcularFitness(); // Atualiza fitness após mutação
                 logAcao(`🦖 Mutação ${tipo}: Dino passou de ${antes} km/h para ${dino.velocidade} km/h.`);
             });
             atualizarExibicao();
         }
         
         function reiniciarProcesso() {
-            gerarPopulacao(10);
             document.getElementById("log").innerHTML = "";
         }
-        
-        gerarPopulacao(10);
     </script>
 </body>
 </html>
