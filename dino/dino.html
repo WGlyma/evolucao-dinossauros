@@ -48,7 +48,7 @@
             }
             
             calcularFitness() {
-                return this.velocidade * 0.5 + this.forca * 0.3 + this.inteligencia * 0.2; // Ajuste os pesos conforme necessário
+                return this.velocidade * 0.5 + this.forca * 0.3 + this.inteligencia * 0.2; 
             }
         }
         
@@ -104,7 +104,7 @@
                 }
                 random -= dino.fitness;
             }
-            return populacao[0]; // Caso não encontre (nunca deve acontecer)
+            return populacao[0];
         }
         
         function executarCrossover() {
@@ -137,7 +137,7 @@
                 dino.velocidade = Math.max(0, Math.min(100, dino.velocidade));
                 dino.forca = Math.max(0, Math.min(100, dino.forca));
                 dino.inteligencia = Math.max(0, Math.min(100, dino.inteligencia));
-                dino.fitness = dino.calcularFitness(); // Atualiza fitness após mutação
+                dino.fitness = dino.calcularFitness(); // Atualiza fitness 
                 logAcao(`🦖 Mutação ${tipo}: Dino passou de ${antes} km/h para ${dino.velocidade} km/h.`);
             });
             atualizarExibicao();
