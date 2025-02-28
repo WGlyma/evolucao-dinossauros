@@ -24,12 +24,14 @@
         <div class="dino-container" id="dinossauros"></div>
         
         <div class="controls">
-            <button onclick="gerarPopulacao(10)">🦖 Gerar População</button>
+            <button onclick="gerarPopulacao(6)">🦖 Gerar População</button>
             <button onclick="selecionarDinos()">🦖 Seleção Natural</button>
-            <button onclick="executarCrossover()">🦖 Cross-over</button>
             <button onclick="mutacao('aleatoria')">🦖 Mutação Aleatória</button>
             <button onclick="mutacao('pequena')">🦖 Mutação Pequena</button>
             <button onclick="mutacao('dirigida')">🦖 Mutação Dirigida</button>
+            <button onclick="executarCrossover('one-point')">🦖 Crossover One-Point</button>
+            <button onclick="executarCrossover('uniform')">🦖 Crossover Uniform</button>
+            <button onclick="executarCrossover('aritmetico')">🦖 Crossover Aritmético</button>
             <button onclick="reiniciarProcesso()">🔄 Reiniciar</button>
         </div>
         
@@ -108,21 +110,19 @@
             return populacao[0];
         }
         
-        function executarCrossover() {
+        function executarCrossover(tipo) {
             let novaPopulacao = [];
             
             for (let i = 0; i < populacao.length - 1; i += 2) {
-                let tipoCrossover = Math.floor(Math.random() * 3); // Escolhe aleatoriamente 
-
                 let novaVelocidade, novaForca, novaInteligencia;
 
-                if (tipoCrossover === 0) { // One-Point, Ele escolhe um ponto e troca as qualidades dos dinossauros de um lado da linha.
+                if (tipo === 'one-point') { // One-Point, Ele escolhe um ponto e troca as qualidades dos dinossauros de um lado da linha.
                     let pontoDeCorte = Math.floor(Math.random() * 3); // Ponto de corte aleatório (0 - 2)
                     novaVelocidade = (pontoDeCorte <= 0) ? populacao[i].velocidade : populacao[i + 1].velocidade;
                     novaForca = (pontoDeCorte <= 1) ? populacao[i].forca : populacao[i + 1].forca;
                     novaInteligencia = (pontoDeCorte === 2) ? populacao[i].inteligencia : populacao[i + 1].inteligencia;
                 } 
-                else if (tipoCrossover === 1) { // Uniform Ele escolhe aleatoriamente de qual dinossauro pegar a qualidade
+                else if (tipo === 'uniform') { // Uniform Ele escolhe aleatoriamente de qual dinossauro pegar a qualidade
                     novaVelocidade = Math.random() > 0.5 ? populacao[i].velocidade : populacao[i + 1].velocidade;
                     novaForca = Math.random() > 0.5 ? populacao[i].forca : populacao[i + 1].forca;
                     novaInteligencia = Math.random() > 0.5 ? populacao[i].inteligencia : populacao[i + 1].inteligencia;
@@ -138,7 +138,7 @@
             
             populacao = [...populacao, ...novaPopulacao];
             atualizarExibicao();
-            logAcao("🦖 Cross-over aplicado. Novos dinossauros gerados.");
+            logAcao(`🦖 Cross-over (${tipo}) aplicado. Novos dinossauros gerados.`);
         }
         
         function mutacao(tipo) {
@@ -169,4 +169,4 @@
         }
     </script>
 </body>
-</html>
+</html> // ok
