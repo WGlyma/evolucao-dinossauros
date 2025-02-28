@@ -24,6 +24,7 @@
         <div class="dino-container" id="dinossauros"></div>
         
         <div class="controls">
+            <button onclick="gerarPopulacao(10)">🦖 Gerar População</button>
             <button onclick="selecionarDinos()">🦖 Seleção Natural</button>
             <button onclick="executarCrossover()">🦖 Cross-over</button>
             <button onclick="mutacao('aleatoria')">🦖 Mutação Aleatória</button>
@@ -43,7 +44,7 @@
                 this.forca = forca;
                 this.inteligencia = inteligencia;
                 this.imagem = "https://upload.wikimedia.org/wikipedia/commons/6/6e/Tyrannosaurus_Rex_Holotype.png";
-                this.fitness = this.calcularFitness();
+                this.fitness = this.calcularFitness(); // Calcula o fitnes baseado nas características dos bixo
             }
             
             calcularFitness() {
@@ -77,6 +78,7 @@
             });
         }
         
+         // Função para registrar ações no log
         function logAcao(mensagem) {
             const logDiv = document.getElementById("log");
             logDiv.innerHTML += `<p>${mensagem}</p>`;
@@ -103,17 +105,39 @@
                 }
                 random -= dino.fitness;
             }
-            return populacao[0]; 
+            return populacao[0];
         }
         
+        // Função para realizar o crossover entre dinossauros
         function executarCrossover() {
             let novaPopulacao = [];
+            
             for (let i = 0; i < populacao.length - 1; i += 2) {
-                let novaVelocidade = Math.round((populacao[i].velocidade + populacao[i + 1].velocidade) / 2);
-                let novaForca = Math.round((populacao[i].forca + populacao[i + 1].forca) / 2);
-                let novaInteligencia = Math.round((populacao[i].inteligencia + populacao[i + 1].inteligencia) / 2);
+                let tipoCrossover = Math.floor(Math.random() * 3); // Escolhe aleatoriamente o tipo de crossover
+
+                let novaVelocidade, novaForca, novaInteligencia;
+
+                if (tipoCrossover === 0) { // One-Point, Ele escolhe um ponto e troca as qualidades dos dinossauros de um lado da linha.  
+
+                    let pontoDeCorte = Math.floor(Math.random() * 3); // Ponto de corte aleatório (0 - 2)
+                    novaVelocidade = (pontoDeCorte <= 0) ? populacao[i].velocidade : populacao[i + 1].velocidade;
+                    novaForca = (pontoDeCorte <= 1) ? populacao[i].forca : populacao[i + 1].forca;
+                    novaInteligencia = (pontoDeCorte === 2) ? populacao[i].inteligencia : populacao[i + 1].inteligencia;
+                } 
+                else if (tipoCrossover === 1) { // Uniform, ele escolhe aleatoriamente de qual dinossauro pegar a qualidada
+                    novaVelocidade = Math.random() > 0.5 ? populacao[i].velocidade : populacao[i + 1].velocidade;
+                    novaForca = Math.random() > 0.5 ? populacao[i].forca : populacao[i + 1].forca;
+                    novaInteligencia = Math.random() > 0.5 ? populacao[i].inteligencia : populacao[i + 1].inteligencia;
+                } 
+                else { // Aritmético, ele pega uma média das qualidades dos dois dinossauros
+                    novaVelocidade = Math.round((populacao[i].velocidade + populacao[i + 1].velocidade) / 2);
+                    novaForca = Math.round((populacao[i].forca + populacao[i + 1].forca) / 2);
+                    novaInteligencia = Math.round((populacao[i].inteligencia + populacao[i + 1].inteligencia) / 2);
+                }
+
                 novaPopulacao.push(new Dinossauro(novaVelocidade, novaForca, novaInteligencia));
             }
+            
             populacao = [...populacao, ...novaPopulacao];
             atualizarExibicao();
             logAcao("🦖 Cross-over aplicado. Novos dinossauros gerados.");
@@ -133,10 +157,10 @@
                 } else if (tipo === 'dirigida') {
                     dino.velocidade += 10;
                 }
-                dino.velocidade = Math.max(0, Math.min(100, dino.velocidade));
+                dino.velocidade = Math.max(0, Math.min(100, dino.velocidade)); // Garante que os valores fiquem entre 0 e 100
                 dino.forca = Math.max(0, Math.min(100, dino.forca));
                 dino.inteligencia = Math.max(0, Math.min(100, dino.inteligencia));
-                dino.fitness = dino.calcularFitness(); // Atualiza fitness 
+                dino.fitness = dino.calcularFitness(); // Atualiza o fitness, que são os atributo dos bixo
                 logAcao(`🦖 Mutação ${tipo}: Dino passou de ${antes} km/h para ${dino.velocidade} km/h.`);
             });
             atualizarExibicao();
