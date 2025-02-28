@@ -44,11 +44,6 @@
                 this.forca = forca;
                 this.inteligencia = inteligencia;
                 this.imagem = "https://upload.wikimedia.org/wikipedia/commons/6/6e/Tyrannosaurus_Rex_Holotype.png";
-                this.fitness = this.calcularFitness(); // Calcula o fitnes baseado nas características dos bixo
-            }
-            
-            calcularFitness() {
-                return this.velocidade * 0.5 + this.forca * 0.3 + this.inteligencia * 0.2; 
             }
         }
         
@@ -94,48 +89,15 @@
             }
             populacao = novaPopulacao;
             atualizarExibicao();
-            logAcao("🦖 Seleção realizada. Apenas os dinossauros mais aptos continuam.");
+            logAcao("🦖 Seleção realizada. Apenas os mais rápidos continuam.");
         }
         
-        function selecionarPorRoleta(totalFitness) {
-            let random = Math.random() * totalFitness;
-            for (const dino of populacao) {
-                if (random < dino.fitness) {
-                    return dino;
-                }
-                random -= dino.fitness;
-            }
-            return populacao[0];
-        }
-        
-        // Função para realizar o crossover entre dinossauros
         function executarCrossover() {
             let novaPopulacao = [];
             
             for (let i = 0; i < populacao.length - 1; i += 2) {
-                let tipoCrossover = Math.floor(Math.random() * 3); // Escolhe aleatoriamente o tipo de crossover
-
-                let novaVelocidade, novaForca, novaInteligencia;
-
-                if (tipoCrossover === 0) { // One-Point, Ele escolhe um ponto e troca as qualidades dos dinossauros de um lado da linha.  
-
-                    let pontoDeCorte = Math.floor(Math.random() * 3); // Ponto de corte aleatório (0 - 2)
-                    novaVelocidade = (pontoDeCorte <= 0) ? populacao[i].velocidade : populacao[i + 1].velocidade;
-                    novaForca = (pontoDeCorte <= 1) ? populacao[i].forca : populacao[i + 1].forca;
-                    novaInteligencia = (pontoDeCorte === 2) ? populacao[i].inteligencia : populacao[i + 1].inteligencia;
-                } 
-                else if (tipoCrossover === 1) { // Uniform, ele escolhe aleatoriamente de qual dinossauro pegar a qualidada
-                    novaVelocidade = Math.random() > 0.5 ? populacao[i].velocidade : populacao[i + 1].velocidade;
-                    novaForca = Math.random() > 0.5 ? populacao[i].forca : populacao[i + 1].forca;
-                    novaInteligencia = Math.random() > 0.5 ? populacao[i].inteligencia : populacao[i + 1].inteligencia;
-                } 
-                else { // Aritmético, ele pega uma média das qualidades dos dois dinossauros
-                    novaVelocidade = Math.round((populacao[i].velocidade + populacao[i + 1].velocidade) / 2);
-                    novaForca = Math.round((populacao[i].forca + populacao[i + 1].forca) / 2);
-                    novaInteligencia = Math.round((populacao[i].inteligencia + populacao[i + 1].inteligencia) / 2);
-                }
-
-                novaPopulacao.push(new Dinossauro(novaVelocidade, novaForca, novaInteligencia));
+                let novaVelocidade = Math.round((populacao[i].velocidade + populacao[i + 1].velocidade) / 2);
+                novaPopulacao.push(new Dinossauro(novaVelocidade));
             }
             
             populacao = [...populacao, ...novaPopulacao];
@@ -157,10 +119,7 @@
                 } else if (tipo === 'dirigida') {
                     dino.velocidade += 10;
                 }
-                dino.velocidade = Math.max(0, Math.min(100, dino.velocidade)); // Garante que os valores fiquem entre 0 e 100
-                dino.forca = Math.max(0, Math.min(100, dino.forca));
-                dino.inteligencia = Math.max(0, Math.min(100, dino.inteligencia));
-                dino.fitness = dino.calcularFitness(); // Atualiza o fitness, que são os atributo dos bixo
+                dino.velocidade = Math.max(0, Math.min(100, dino.velocidade));
                 logAcao(`🦖 Mutação ${tipo}: Dino passou de ${antes} km/h para ${dino.velocidade} km/h.`);
             });
             atualizarExibicao();
